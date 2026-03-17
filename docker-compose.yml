@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tbats-postgres
+    environment:
+      POSTGRES_DB: tbats
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - tbats-data:/var/lib/postgresql/data
+
+volumes:
+  tbats-data:
