@@ -14,15 +14,4 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner jwtSmokeTest(JwtUtil jwtUtil) {
-		return args -> {
-			String token = jwtUtil.generateToken("alice", "ADMIN");
-			System.out.println("TOKEN: " + token);
-			System.out.println("VALID: " + jwtUtil.validateToken(token));
-			System.out.println("USER:  " + jwtUtil.extractUsername(token));
-			System.out.println("ROLE:  " + jwtUtil.extractRole(token));
-		};
-	}
-
 }
