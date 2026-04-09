@@ -22,49 +22,53 @@ public class JwtUtil {
     @Value("${jwt.expiration-ms}")
     private long expirationMs;
 
-     private SecretKey secretKey;
+    private SecretKey secretKey;
 
-     @PostConstruct
-     public void init() {
-         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-     }
+    @PostConstruct
+    public void init() {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
-     public String generateToken(String username, String role) {
-         Date now = new Date();
-         Date expiry = new Date(now.getTime() + expirationMs);
+    // Testing constructor
+    JwtUtil(String secret, long expirationMs) {
+        this.secret = secret;
+        this.expirationMs = expirationMs;
+        init();
+    }
 
-         return Jwts.builder()
-                 .subject(username)
-                 .claim("role", role)
-                 .issuedAt(now)
-                 .expiration(expiry)
-                 .signWith(secretKey)
-                 .compact();
-     }
+    public String generateToken(String username, String role) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + expirationMs);
 
-     public String extractUsername(String token) {
+        return Jwts.builder()
+                .subject(username)
+                .claim("role", role)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(secretKey)
+                .compact();
+    }
+    public String extractUsername(String token) {
          return parseClaims(token).getSubject();
      }
-
-     public String extractRole(String token) {
+    public String extractRole(String token) {
          return parseClaims(token).get("role", String.class);
      }
+    public boolean validateToken(String token) {
+       try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.debug("JWT validation failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+            return false;
+        }
+    }
 
-     public boolean validateToken(String token) {
-         try {
-             parseClaims(token);
-             return true;
-         } catch (JwtException | IllegalArgumentException e) {
-             log.debug("JWT validation failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
-             return false;
-         }
-     }
-
-     private Claims parseClaims(String token) {
-         return Jwts.parser()
-                 .verifyWith(secretKey)
-                 .build()
-                 .parseSignedClaims(token)
-                 .getPayload();
-     }
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 }
