@@ -18,11 +18,14 @@ public class User {
     private String username;
 
     @Column(nullable = false, length = 255)
-    private String password;
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
+
+    @Column(nullable = false, length = 50)
+    private String createdAt;
 
     public User() {
 
@@ -30,7 +33,7 @@ public class User {
 
     public User(String username, String password, Role role) {
         this.username = username;
-        this.password = password;
+        this.passwordHash = password;
         this.role = role;
     }
 
@@ -49,8 +52,8 @@ public class User {
         return this.username;
     }
 
-    public String getPassword() {
-        return this.password;
+    public String getPasswordHash() {
+        return this.passwordHash;
     }
 
     public Role getRole() {
@@ -65,8 +68,8 @@ public class User {
         this.username = username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     protected void setId(UUID id) {
