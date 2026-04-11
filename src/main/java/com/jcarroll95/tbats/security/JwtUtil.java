@@ -29,7 +29,7 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // Testing constructor
+    // Unit test constructor
     JwtUtil(String secret, long expirationMs) {
         this.secret = secret;
         this.expirationMs = expirationMs;
