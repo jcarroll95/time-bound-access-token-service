@@ -2,7 +2,9 @@
 
 ## Overview
 
-A small but realistic backend service that issues temporary access grants and automatically expires them. This is a simplified precursor to a PAM (Privileged Access Management) system, directly rehearsing concepts like authentication, authorization, time-bounded permissions, and revocation.
+A small but realistic backend service that issues temporary access grants and automatically expires them. This is a  
+simplified precursor to a PAM (Privileged Access Management) system, directly rehearsing concepts like authentication,  
+authorization, time-bounded permissions, and revocation.  
 
 ## Objectives
 
@@ -20,7 +22,12 @@ A small but realistic backend service that issues temporary access grants and au
 
 ## Architecture
 
-The service follows a layered Spring Boot architecture where dependencies flow strictly downward: controllers handle HTTP translation, services contain all business logic, and repositories manage data access. Authentication is handled as a cross-cutting concern via a JWT security filter that runs before any controller logic, decoupling identity verification from the business layer. See [docs/architecture.md](docs/architecture.md) for a high-level overview.
+<img src="docs/access_token_service_architecture.svg" width="600" alt="Access Token Service Architecture">
+
+The service follows a layered Spring Boot architecture where dependencies flow strictly downward: controllers handle HTTP  
+translation, services contain all business logic, and repositories manage data access. Authentication is handled as a  
+cross-cutting concern via a JWT security filter that runs before any controller logic, decoupling identity verification 
+from the business layer. See [docs/architecture.md](docs/architecture.md) for a high-level overview.  
 
 ## API Surface (6 Endpoints)
 
@@ -66,21 +73,65 @@ User and AccessGrant are the primary entities. See [docs/entity-relationships.md
 
 ## How to Run Locally
 
-### Prerequisites  
-- Java 21  
-- Docker  
+### Setup
 
-### Environment variables  
-Export these before running. The app fails to start if either is missing.  
+Copy `.env.example` to `.env` and fill in values:
 
-export JWT_SECRET="yoursecret"  
-export SPRING_DATASOURCE_PASSWORD="yourpw"  
-export SPRING_PROFILES_ACTIVE="local"  
+```bash
+cp .env.example .env
+```
 
-### Run  
-    docker compose up -d  
-    ./mvnw spring-boot:run  
+Start PostgreSQL:
 
+```bash
+docker compose up -d
+```
+
+Export environment variables and run the application with the `local` profile
+(which loads seeded test users):
+
+```bash
+set -a && source .env && set +a
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+The service listens on `http://localhost:8080`.
+
+### Example requests
+
+Log in as the seeded test user and capture the JWT:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"user123"}' \
+  | jq -r .token)
+```
+
+(If you don't have jq installed, just curl POST the credentials and copy the token from the response.)
+
+Create a grant:
+
+```bash
+curl -X POST http://localhost:8080/grants \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"resourceName":"production-db","durationMinutes":60}'
+```
+
+List active grants:
+
+```bash
+curl http://localhost:8080/grants/active \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Revoke a grant (use the `id` returned from the create call):
+
+```bash
+curl -X DELETE http://localhost:8080/grants/{id} \
+  -H "Authorization: Bearer $TOKEN"
+```
 ### Seeded users (local profile only)
 - testuser / user123 (USER)
 - admin / admin123 (ADMIN)
