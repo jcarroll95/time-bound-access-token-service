@@ -12,7 +12,6 @@ import com.jcarroll95.tbats.dto.grant.CreateGrantRequest;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.jcarroll95.tbats.model.Role;
 @Service
@@ -29,11 +28,8 @@ public class GrantService {
 
     public GrantResponse createGrant(String username, CreateGrantRequest request) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(username));
-        int duration = request.durationMinutes();
-        // 360 minutes = 6 hours max grant lifetime, enforcing short-lived principle
-        if (duration < 1 || duration > 360) throw new IllegalArgumentException("Request duration unacceptable");
 
-        AccessGrant grant = new AccessGrant(user.getId(), request.resourceName(), duration);
+        AccessGrant grant = new AccessGrant(user.getId(), request.resourceName(), request.durationMinutes());
         AccessGrant savedGrant = grantRepository.save(grant);
         return toResponse(savedGrant);
     }

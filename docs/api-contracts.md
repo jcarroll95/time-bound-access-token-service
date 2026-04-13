@@ -49,7 +49,6 @@ Authenticate with credentials and receive a JWT.
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
-  "expiresAt": "2026-03-15T15:30:00Z"
 }
 ```
 
@@ -155,7 +154,8 @@ List all active grants for the authenticated user. Active means not revoked and 
       "resourceName": "production-db",
       "issuedAt": "2026-03-15T14:30:00Z",
       "expiresAt": "2026-03-15T16:30:00Z",
-      "revoked": false
+      "revoked": false,
+      "active": true
     }
   ]
 }

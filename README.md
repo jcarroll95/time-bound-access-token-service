@@ -66,7 +66,24 @@ User and AccessGrant are the primary entities. See [docs/entity-relationships.md
 
 ## How to Run Locally
 
-TBP.
+### Prerequisites  
+- Java 21  
+- Docker  
+
+### Environment variables  
+Export these before running. The app fails to start if either is missing.  
+
+export JWT_SECRET="yoursecret"  
+export SPRING_DATASOURCE_PASSWORD="yourpw"  
+export SPRING_PROFILES_ACTIVE="local"  
+
+### Run  
+    docker compose up -d  
+    ./mvnw spring-boot:run  
+
+### Seeded users (local profile only)
+- alice / password123 (USER)
+- admin / admin123 (ADMIN)
 
 ## Bridge to PAM
 

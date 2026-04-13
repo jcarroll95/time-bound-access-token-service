@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+jwt:
+  expiration-ms: 3600000
+logging:
+  level:
+    com.jcarroll95.tbats: DEBUG
+    org.springframework.security: DEBUG
+grants:
+  expiration:
+    interval-ms: 60000  # run every minute

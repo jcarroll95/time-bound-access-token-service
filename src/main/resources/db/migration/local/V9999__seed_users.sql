@@ -1,4 +1,5 @@
--- V2__seed_users.sql
+-- V9999__seed_users.sql
+-- LOCAL DEVELOPMENT SEED DATA ONLY
 -- Seeds two test users for development and integration testing.
 -- Passwords: admin123 / user123 (DEV ONLY — not for any environment besides local).
 
@@ -9,7 +10,8 @@ VALUES (
            '$2a$10$FYQsIGd7YMBXH57fd2vP8uLDAdPyZd3tKk86UxUCBZojr/IIgwkHW',
            'ADMIN',
            NOW()
-       );
+       )
+ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO users (id, username, password_hash, role, created_at)
 VALUES (
@@ -18,4 +20,5 @@ VALUES (
            '$2a$10$QkNee1q3pcT01.AeZV9UvOHJ1jwsRv1VdieaRlPInyDFVL42tPXo.',
            'USER',
            NOW()
-       );
+       )
+ON CONFLICT (username) DO NOTHING;
