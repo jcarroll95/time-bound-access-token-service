@@ -11,14 +11,20 @@
 	<groupId>com.jcarroll95</groupId>
 	<artifactId>tbats</artifactId>
 	<version>1.0.0</version>
-	<name/>
-	<description/>
-	<url/>
+	<name>Time-Bound Access Token Service</name>
+	<description>A small but realistic backend service that issues temporary access grants and automatically expires them. </description>
+	<url>https://github.com/jcarroll95/time-bound-access-token-service</url>
 	<licenses>
-		<license/>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<name>James Carroll</name>
+			<url>https://github.com/jcarroll95</url>
+		</developer>
 	</developers>
 	<scm>
 		<connection/>
