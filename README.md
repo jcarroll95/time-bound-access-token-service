@@ -85,9 +85,23 @@ export SPRING_PROFILES_ACTIVE="local"
 - testuser / user123 (USER)
 - admin / admin123 (ADMIN)
 
+## Dependency Management
+
+Spring Boot 4.0.5 is the latest patch release at time of writing and includes
+current security patches for Spring Framework, Spring Security, Jackson, and
+Tomcat. IntelliJ's Package Checker reports no known CVEs against the resolved
+dependency tree.
+
+## Testing
+
+- Unit tests for security utilities and core logic — runnable with `./mvnw test`
+- Integration tests authored for full lifecycle and expiration paths
+  (currently `@Disabled` — see `docs/integration-tests.md`)
+
 ## Bridge to PAM
 
-Once the MVP is achieved, the next project iteration will develop PAM features including:
+Once the MVP is achieved, the next project iteration will develop privileged access  
+management features including:
 
 - JIT access approvals
 - RBAC policies

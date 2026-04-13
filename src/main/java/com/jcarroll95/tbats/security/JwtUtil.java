@@ -5,9 +5,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import com.jcarroll95.tbats.security.JwtProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
@@ -19,35 +18,17 @@ import org.slf4j.LoggerFactory;
 public class JwtUtil {
     private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final JwtProperties properties;
+    private final SecretKey secretKey;
 
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
-
-    private SecretKey secretKey;
-
-    @PostConstruct
-    public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Autowired
-    public JwtUtil() {
-        // Tell Spring to use the no-arg constructor for dependency injection
-        // instead of my unit test constructor
-    }
-
-    // Unit test constructor
-    JwtUtil(String secret, long expirationMs) {
-        this.secret = secret;
-        this.expirationMs = expirationMs;
-        init();
+    public JwtUtil(JwtProperties properties) {
+        this.properties = properties;
+        this.secretKey = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String username, String role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+        Date expiry = new Date(now.getTime() + properties.expirationMs());
 
         return Jwts.builder()
                 .subject(username)
@@ -57,12 +38,15 @@ public class JwtUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
     public String extractUsername(String token) {
-         return parseClaims(token).getSubject();
+        return parseClaims(token).getSubject();
      }
+
     public String extractRole(String token) {
-         return parseClaims(token).get("role", String.class);
+        return parseClaims(token).get("role", String.class);
      }
+
     public boolean validateToken(String token) {
        try {
             parseClaims(token);

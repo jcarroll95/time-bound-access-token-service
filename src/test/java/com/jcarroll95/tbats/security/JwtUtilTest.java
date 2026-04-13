@@ -2,19 +2,20 @@ package com.jcarroll95.tbats.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.jcarroll95.tbats.security.JwtProperties;
+import com.jcarroll95.tbats.security.JwtUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtUtilTest {
 
-    private JwtUtil jwtUtil;
+    JwtUtil jwtUtil;
+    JwtProperties props = new JwtProperties("test-secret-at-least-32-bytes-long-xxx", 3600000L);
 
-    private static final String SECRET = "test-secret-key-at-least-32-characters-long-xx";
-    private static final long ONE_HOUR_MS = 3_600_000L;
 
     @BeforeEach
     void setUp() {
-        jwtUtil = new JwtUtil(SECRET, ONE_HOUR_MS);
+        jwtUtil = new JwtUtil(props);
     }
 
     @Test
@@ -45,14 +46,16 @@ class JwtUtilTest {
 
     @Test
     void tokenSignedWithDifferentSecret_failsValidation() {
-        JwtUtil otherUtil = new JwtUtil("a-completely-different-secret-key-also-32-chars", ONE_HOUR_MS);
+        JwtProperties otherProps = new JwtProperties("a-completely-different-secret-key-also-32-chars", 3600000L);
+        JwtUtil otherUtil = new JwtUtil(otherProps);
         String foreignToken = otherUtil.generateToken("baymax", "ADMIN");
         assertThat(jwtUtil.validateToken(foreignToken)).isFalse();
     }
 
     @Test
     void expiredToken_failsValidation() throws InterruptedException {
-        JwtUtil shortLivedUtil = new JwtUtil(SECRET, 1L); // 1 millisecond
+        JwtProperties shortProps = new JwtProperties("test-secret-at-least-32-bytes-long-xxx", 1L);
+        JwtUtil shortLivedUtil = new JwtUtil(shortProps); // 1 millisecond
         String token = shortLivedUtil.generateToken("jimbo", "USER");
         Thread.sleep(50); // wait for expiration
         assertThat(shortLivedUtil.validateToken(token)).isFalse();
