@@ -82,7 +82,7 @@ export SPRING_PROFILES_ACTIVE="local"
     ./mvnw spring-boot:run  
 
 ### Seeded users (local profile only)
-- alice / password123 (USER)
+- testuser / user123 (USER)
 - admin / admin123 (ADMIN)
 
 ## Bridge to PAM
