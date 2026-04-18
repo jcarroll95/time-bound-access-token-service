@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBATS — Grant Console</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0c0e11;
+            --surface: #151920;
+            --surface-alt: #1a2030;
+            --border: #252d3a;
+            --border-focus: #3d8bfd;
+            --text: #c9d1d9;
+            --text-dim: #6e7a8a;
+            --text-bright: #ecf0f4;
+            --accent: #3d8bfd;
+            --accent-dim: rgba(61, 139, 253, 0.12);
+            --green: #2ea44f;
+            --green-dim: rgba(46, 164, 79, 0.12);
+            --red: #da3633;
+            --red-dim: rgba(218, 54, 51, 0.12);
+            --amber: #d29922;
+            --amber-dim: rgba(210, 153, 34, 0.12);
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+            --radius: 6px;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ── header ── */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        header h1 {
+            font-family: var(--mono);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-bright);
+            letter-spacing: 0.5px;
+        }
+
+        header h1 span {
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .session-user {
+            font-family: var(--mono);
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        .btn-logout {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* ── layout ── */
+        main {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* ── login panel ── */
+        #login-panel {
+            margin-top: 80px;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #login-panel h2 {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-bright);
+            font-family: var(--mono);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--border-focus);
+        }
+
+        input::placeholder { color: var(--text-dim); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: #5a9fff; }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .hint {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 16px;
+            font-family: var(--mono);
+            text-align: center;
+        }
+
+        .hint code {
+            color: var(--text);
+            background: var(--surface-alt);
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        /* ── dashboard ── */
+        #dashboard { display: none; }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── create form ── */
+        .create-form {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 32px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .create-form .form-group { margin-bottom: 0; flex: 1; }
+
+        .create-form .btn {
+            width: auto;
+            white-space: nowrap;
+            padding: 10px 16px;
+            flex-shrink: 0;
+        }
+
+        /* ── grants list ── */
+        .grants-empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 13px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+        }
+
+        .grant-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grant-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .grant-resource {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .grant-status {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+
+        .status-active {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .status-expiring {
+            color: var(--amber);
+            background: var(--amber-dim);
+        }
+
+        .grant-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            font-size: 12px;
+        }
+
+        .meta-label {
+            font-family: var(--mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 10px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-family: var(--mono);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .grant-timer {
+            font-family: var(--mono);
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--green);
+            transition: color 0.3s;
+        }
+
+        .grant-timer.warning { color: var(--amber); }
+        .grant-timer.critical { color: var(--red); }
+
+        .grant-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-revoke {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-revoke:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .grant-id {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* ── toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-bright);
+            z-index: 100;
+            animation: toastIn 0.2s ease-out;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .toast.visible { opacity: 1; pointer-events: auto; }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
+
+        @keyframes toastIn {
+            from { transform: translateY(12px); }
+            to { transform: translateY(0); }
+        }
+
+        /* ── event log ── */
+        .event-log {
+            margin-top: 32px;
+        }
+
+        .log-entries {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .log-entry {
+            color: var(--text-dim);
+        }
+
+        .log-entry .log-time { color: var(--text-dim); }
+        .log-entry .log-action { color: var(--accent); }
+        .log-entry .log-resource { color: var(--text); }
+
+        /* ── responsive ── */
+        @media (max-width: 600px) {
+            .create-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .create-form .btn { width: 100%; }
+            .grant-meta { gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TBATS <span>/ grant console</span></h1>
+    <div class="session-info" id="session-info" style="display:none">
+        <span class="session-user" id="session-user"></span>
+        <button class="btn-logout" onclick="logout()">logout</button>
+    </div>
+</header>
+
+<main>
+    <!-- Login -->
+    <div id="login-panel">
+        <h2>Authenticate</h2>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="testuser" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••">
+        </div>
+        <button class="btn btn-primary" id="login-btn" onclick="login()">Authenticate</button>
+        <p class="hint">demo: <code>testuser</code> / <code>user123</code></p>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard">
+        <!-- Create -->
+        <div class="section-label">New Grant</div>
+        <div class="create-form">
+            <div class="form-group">
+                <label for="resource">Resource</label>
+                <input type="text" id="resource" placeholder="production-db">
+            </div>
+            <div class="form-group" style="max-width: 140px">
+                <label for="duration">Minutes</label>
+                <input type="number" id="duration" value="2" min="1" max="360">
+            </div>
+            <button class="btn btn-primary" onclick="createGrant()">Grant</button>
+        </div>
+
+        <!-- Active grants -->
+        <div class="section-label">Active Grants</div>
+        <div id="grants-container">
+            <div class="grants-empty">No active grants</div>
+        </div>
+
+        <!-- Event log -->
+        <div class="event-log">
+            <div class="section-label">Event Log</div>
+            <div class="log-entries" id="log-entries"></div>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = window.location.origin;
+    let token = null;
+    let grants = [];
+    let timerInterval = null;
+
+    // ── Auth ──
+
+    async function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        if (!username || !password) return;
+
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true;
+        btn.textContent = 'Authenticating…';
+
+        try {
+            const res = await fetch(`${API}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!res.ok) throw new Error('Invalid credentials');
+
+            const data = await res.json();
+            token = data.token;
+
+            document.getElementById('login-panel').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('session-info').style.display = 'flex';
+            document.getElementById('session-user').textContent = username;
+
+            log('authenticated', username);
+            toast('Authenticated', 'success');
+            refreshGrants();
+            timerInterval = setInterval(updateTimers, 1000);
+        } catch (e) {
+            toast(e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Authenticate';
+        }
+    }
+
+    function logout() {
+        token = null;
+        grants = [];
+        clearInterval(timerInterval);
+        document.getElementById('login-panel').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('session-info').style.display = 'none';
+        document.getElementById('log-entries').innerHTML = '';
+        document.getElementById('password').value = '';
+    }
+
+    // ── Grants ──
+
+    async function createGrant() {
+        const resourceName = document.getElementById('resource').value.trim();
+        const durationMinutes = parseInt(document.getElementById('duration').value);
+        if (!resourceName) return;
+
+        try {
+            const res = await fetch(`${API}/grants`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ resourceName, durationMinutes })
+            });
+
+            if (res.status === 401) { toast('Session expired', 'error'); logout(); return; }
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to create grant');
+            }
+
+            log('granted', `${resourceName} for ${durationMinutes}m`);
+            toast('Grant created', 'success');
+            document.getElementById('resource').value = '';
+            refreshGrants();
+        } catch (e) {
+            toast(e.message, 'error');
+        }
+    }
+
+    async function revokeGrant(id, resourceName) {
+        try {
+            const res = await fetch(`${API}/grants/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.status === 401) { toast('Session expired', 'error'); logout(); return; }
+            if (!res.ok) throw new Error('Failed to revoke');
+
+            log('revoked', resourceName);
+            toast('Grant revoked', 'success');
+            refreshGrants();
+        } catch (e) {
+            toast(e.message, 'error');
+        }
+    }
+
+    async function refreshGrants() {
+        try {
+            const res = await fetch(`${API}/grants/active`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.status === 401) { toast('Session expired', 'error'); logout(); return; }
+            if (!res.ok) throw new Error('Failed to fetch');
+
+            const data = await res.json();
+            // Handle both envelope { grants: [...] } and bare array [...]
+            const prev = grants.length;
+            grants = Array.isArray(data) ? data : (data.grants || []);
+
+            // Detect expiration
+            if (prev > 0 && grants.length < prev) {
+                const diff = prev - grants.length;
+                log('expired', `${diff} grant${diff > 1 ? 's' : ''} timed out`);
+            }
+
+            renderGrants();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderGrants() {
+        const container = document.getElementById('grants-container');
+
+        if (grants.length === 0) {
+            container.innerHTML = '<div class="grants-empty">No active grants</div>';
+            return;
+        }
+
+        container.innerHTML = grants.map(g => {
+            const remaining = new Date(g.expiresAt).getTime() - Date.now();
+            const totalMs = new Date(g.expiresAt).getTime() - new Date(g.issuedAt).getTime();
+            const pct = Math.max(0, remaining / totalMs);
+            const timerClass = pct < 0.15 ? 'critical' : pct < 0.35 ? 'warning' : '';
+
+            return `
+      <div class="grant-card" data-id="${g.id}" data-expires="${g.expiresAt}">
+        <div class="grant-header">
+          <span class="grant-resource">${esc(g.resourceName)}</span>
+          <span class="grant-status ${pct < 0.15 ? 'status-expiring' : 'status-active'}">
+            ${pct < 0.15 ? 'expiring' : 'active'}
+          </span>
+        </div>
+        <div class="grant-meta">
+          <div class="meta-item">
+            <span class="meta-label">Issued</span>
+            <span class="meta-value">${fmtTime(g.issuedAt)}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Expires</span>
+            <span class="meta-value">${fmtTime(g.expiresAt)}</span>
+          </div>
+        </div>
+        <div class="grant-footer">
+          <span class="grant-timer ${timerClass}" data-expires="${g.expiresAt}">
+            ${fmtCountdown(remaining)}
+          </span>
+          <div>
+            <span class="grant-id">${g.id.slice(0, 8)}…</span>
+            <button class="btn-revoke" onclick="revokeGrant('${g.id}', '${esc(g.resourceName)}')">
+              revoke
+            </button>
+          </div>
+        </div>
+      </div>`;
+        }).join('');
+    }
+
+    function updateTimers() {
+        let anyExpired = false;
+
+        document.querySelectorAll('.grant-timer[data-expires]').forEach(el => {
+            const remaining = new Date(el.dataset.expires).getTime() - Date.now();
+
+            if (remaining <= 0) {
+                anyExpired = true;
+                return;
+            }
+
+            const card = el.closest('.grant-card');
+            const totalMs = new Date(card.dataset.expires).getTime() -
+                new Date(card.querySelector('.meta-value').textContent).getTime() || 1;
+            const pct = remaining / totalMs;
+
+            el.textContent = fmtCountdown(remaining);
+            el.className = 'grant-timer' +
+                (pct < 0.15 ? ' critical' : pct < 0.35 ? ' warning' : '');
+
+            const badge = card.querySelector('.grant-status');
+            if (pct < 0.15) {
+                badge.textContent = 'expiring';
+                badge.className = 'grant-status status-expiring';
+            }
+        });
+
+        if (anyExpired) refreshGrants();
+    }
+
+    // ── Helpers ──
+
+    function fmtCountdown(ms) {
+        if (ms <= 0) return '00:00';
+        const s = Math.floor(ms / 1000);
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function fmtTime(iso) {
+        return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function esc(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function toast(msg, type) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `toast ${type} visible`;
+        setTimeout(() => el.classList.remove('visible'), 2500);
+    }
+
+    function log(action, detail) {
+        const el = document.getElementById('log-entries');
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        el.innerHTML = `<div class="log-entry">
+    <span class="log-time">${time}</span>
+    <span class="log-action"> ${action}</span>
+    <span class="log-resource"> ${detail}</span>
+  </div>` + el.innerHTML;
+    }
+
+    // Enter key on login
+    document.getElementById('password').addEventListener('keydown', e => {
+        if (e.key === 'Enter') login();
+    });
+    document.getElementById('username').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('password').focus();
+    });
+</script>
+
+</body>
+</html>
