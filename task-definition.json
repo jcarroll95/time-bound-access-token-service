@@ -1,0 +1,36 @@
+{
+  "family": "tbats",
+  "taskRoleArn": "arn:aws:iam::892387178312:role/tbats-task-role",
+  "executionRoleArn": "arn:aws:iam::892387178312:role/tbats-task-execution-role",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "containerDefinitions": [
+    {
+      "name": "tbats",
+      "image": "892387178312.dkr.ecr.us-east-1.amazonaws.com/tbats:latest",
+      "portMappings": [{"containerPort": 8080, "protocol": "tcp"}],
+      "environment": [
+        {"name": "DB_HOST", "value": "tbatsdb.cov0mwcskay1.us-east-1.rds.amazonaws.com"},
+        {"name": "DB_PORT", "value": "5432"},
+        {"name": "SPRING_PROFILES_ACTIVE", "value": "demo"},
+        {"name": "POSTGRES_DB", "value": "tbats"}
+      ],
+      "secrets": [
+        {"name": "POSTGRES_USER", "valueFrom": "arn:aws:secretsmanager:us-east-1:892387178312:secret:tbats-secrets-hs27uh:POSTGRES_USER::"},
+        {"name": "POSTGRES_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:892387178312:secret:tbats-secrets-hs27uh:POSTGRES_PASSWORD::"},
+        {"name": "JWT_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:892387178312:secret:tbats-secrets-hs27uh:JWT_SECRET::"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/tbats",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}
