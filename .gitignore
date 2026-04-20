@@ -1,1 +1,16 @@
+# Environment/secrets
 local.env
+.env
+test.env
+
+# IDE
+.idea/
+
+# Build output
+target/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
