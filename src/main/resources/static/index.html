@@ -10,25 +10,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #0c0e11;
-            --surface: #151920;
-            --surface-alt: #1a2030;
-            --border: #252d3a;
-            --border-focus: #3d8bfd;
-            --text: #c9d1d9;
-            --text-dim: #6e7a8a;
-            --text-bright: #ecf0f4;
-            --accent: #3d8bfd;
-            --accent-dim: rgba(61, 139, 253, 0.12);
-            --green: #2ea44f;
-            --green-dim: rgba(46, 164, 79, 0.12);
-            --red: #da3633;
-            --red-dim: rgba(218, 54, 51, 0.12);
-            --amber: #d29922;
-            --amber-dim: rgba(210, 153, 34, 0.12);
+            --bg: #111318;
+            --surface: #191c24;
+            --surface-alt: #1e222c;
+            --border: #2a2f3a;
+            --border-focus: #c9a84c;
+            --text: #b8bcc6;
+            --text-dim: #5f6672;
+            --text-bright: #e2e4e9;
+            --accent: #c9a84c;
+            --accent-dim: rgba(201, 168, 76, 0.10);
+            --accent-hover: #dbb85a;
+            --green: #3a9a5c;
+            --green-dim: rgba(58, 154, 92, 0.12);
+            --red: #c44040;
+            --red-dim: rgba(196, 64, 64, 0.10);
+            --orange: #cc7a2e;
+            --orange-dim: rgba(204, 122, 46, 0.12);
             --mono: 'IBM Plex Mono', monospace;
             --sans: 'IBM Plex Sans', sans-serif;
-            --radius: 6px;
+            --radius: 4px;
         }
 
         body {
@@ -42,7 +43,7 @@
         /* header */
         header {
             border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
+            padding: 14px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -51,10 +52,11 @@
 
         header h1 {
             font-family: var(--mono);
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--text-bright);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
         }
 
         header h1 span {
@@ -65,14 +67,36 @@
         .session-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-size: 13px;
         }
 
         .session-user {
             font-family: var(--mono);
-            color: var(--accent);
+            color: var(--text-bright);
             font-size: 13px;
+        }
+
+        .role-badge {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 2px 7px;
+            border-radius: 2px;
+        }
+
+        .role-badge.admin {
+            color: var(--accent);
+            background: var(--accent-dim);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+        }
+
+        .role-badge.user {
+            color: var(--text-dim);
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
         }
 
         .btn-logout {
@@ -80,11 +104,13 @@
             border: 1px solid var(--border);
             color: var(--text-dim);
             font-family: var(--mono);
-            font-size: 12px;
+            font-size: 11px;
             padding: 4px 10px;
             border-radius: var(--radius);
             cursor: pointer;
             transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-logout:hover {
@@ -109,7 +135,7 @@
 
         #login-panel h2 {
             font-family: var(--mono);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--text-dim);
             text-transform: uppercase;
@@ -124,7 +150,7 @@
         label {
             display: block;
             font-family: var(--mono);
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-dim);
             margin-bottom: 6px;
             text-transform: uppercase;
@@ -164,29 +190,37 @@
             cursor: pointer;
             transition: all 0.15s;
             width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
             background: var(--accent);
-            color: #fff;
+            color: #111318;
         }
 
-        .btn-primary:hover { background: #5a9fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .hint {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-dim);
-            margin-top: 16px;
+            margin-top: 20px;
             font-family: var(--mono);
             text-align: center;
+            line-height: 1.9;
         }
 
         .hint code {
             color: var(--text);
             background: var(--surface-alt);
             padding: 1px 5px;
-            border-radius: 3px;
+            border-radius: 2px;
+        }
+
+        .hint .role-hint {
+            color: var(--text-dim);
+            font-size: 10px;
         }
 
         /* dashboard */
@@ -194,7 +228,7 @@
 
         .section-label {
             font-family: var(--mono);
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -209,6 +243,14 @@
             flex: 1;
             height: 1px;
             background: var(--border);
+        }
+
+        .section-label.admin-label {
+            color: var(--accent);
+        }
+
+        .section-label.admin-label::after {
+            background: rgba(201, 168, 76, 0.2);
         }
 
         /* create form */
@@ -238,7 +280,7 @@
             padding: 48px 20px;
             color: var(--text-dim);
             font-family: var(--mono);
-            font-size: 13px;
+            font-size: 12px;
             border: 1px dashed var(--border);
             border-radius: var(--radius);
         }
@@ -250,6 +292,10 @@
             padding: 16px 20px;
             margin-bottom: 8px;
             animation: slideIn 0.2s ease-out;
+        }
+
+        .grant-card.admin-card {
+            border-left: 2px solid rgba(201, 168, 76, 0.3);
         }
 
         @keyframes slideIn {
@@ -271,14 +317,22 @@
             color: var(--text-bright);
         }
 
+        .grant-owner {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
         .grant-status {
             font-family: var(--mono);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 3px 8px;
-            border-radius: 3px;
+            padding: 2px 7px;
+            border-radius: 2px;
         }
 
         .status-active {
@@ -287,8 +341,8 @@
         }
 
         .status-expiring {
-            color: var(--amber);
-            background: var(--amber-dim);
+            color: var(--orange);
+            background: var(--orange-dim);
         }
 
         .grant-meta {
@@ -327,7 +381,7 @@
             transition: color 0.3s;
         }
 
-        .grant-timer.warning { color: var(--amber); }
+        .grant-timer.warning { color: var(--orange); }
         .grant-timer.critical { color: var(--red); }
 
         .grant-footer {
@@ -343,11 +397,13 @@
             border: 1px solid var(--border);
             color: var(--text-dim);
             font-family: var(--mono);
-            font-size: 12px;
-            padding: 5px 12px;
+            font-size: 11px;
+            padding: 4px 12px;
             border-radius: var(--radius);
             cursor: pointer;
             transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-revoke:hover {
@@ -362,15 +418,23 @@
             color: var(--text-dim);
         }
 
+        /* admin section */
+        #admin-section {
+            display: none;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+
         /* toast */
         .toast {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: var(--radius);
             font-family: var(--mono);
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-bright);
             z-index: 100;
             animation: toastIn 0.2s ease-out;
@@ -430,6 +494,7 @@
     <h1>TBATS <span>/ grant console</span></h1>
     <div class="session-info" id="session-info" style="display:none">
         <span class="session-user" id="session-user"></span>
+        <span class="role-badge" id="role-badge"></span>
         <button class="btn-logout" onclick="logout()">logout</button>
     </div>
 </header>
@@ -447,29 +512,46 @@
             <input type="password" id="password" placeholder="••••••">
         </div>
         <button class="btn btn-primary" id="login-btn" onclick="login()">Authenticate</button>
-        <p class="hint">demo: <code>testuser</code> / <code>user123</code></p>
+        <p class="hint">
+            <code>testuser</code> / <code>user123</code> <span class="role-hint">— user</span><br>
+            <code>admin</code> / <code>admin123</code> <span class="role-hint">— admin</span>
+        </p>
     </div>
 
     <!-- Dashboard -->
     <div id="dashboard">
-        <!-- Create -->
-        <div class="section-label">New Grant</div>
-        <div class="create-form">
-            <div class="form-group">
-                <label for="resource">Resource</label>
-                <input type="text" id="resource" placeholder="production-db">
+        <!-- Create (admin only) -->
+        <div id="create-section" style="display: none">
+            <div class="section-label admin-label">Provision Grant</div>
+            <div class="create-form">
+                <div class="form-group" style="max-width: 140px">
+                    <label for="target-user">User</label>
+                    <input type="text" id="target-user" placeholder="testuser">
+                </div>
+                <div class="form-group">
+                    <label for="resource">Resource</label>
+                    <input type="text" id="resource" placeholder="production-db">
+                </div>
+                <div class="form-group" style="max-width: 140px">
+                    <label for="duration">Minutes</label>
+                    <input type="number" id="duration" value="2" min="1" max="360">
+                </div>
+                <button class="btn btn-primary" onclick="createGrant()">Grant</button>
             </div>
-            <div class="form-group" style="max-width: 140px">
-                <label for="duration">Minutes</label>
-                <input type="number" id="duration" value="2" min="1" max="360">
-            </div>
-            <button class="btn btn-primary" onclick="createGrant()">Grant</button>
         </div>
 
-        <!-- Active grants -->
+        <!-- Active grants (own) -->
         <div class="section-label">Active Grants</div>
         <div id="grants-container">
             <div class="grants-empty">No active grants</div>
+        </div>
+
+        <!-- Admin: all grants across users -->
+        <div id="admin-section">
+            <div class="section-label admin-label">All Active Grants</div>
+            <div id="admin-grants-container">
+                <div class="grants-empty">No active grants</div>
+            </div>
         </div>
 
         <!-- Event log -->
@@ -485,8 +567,17 @@
 <script>
     const API = window.location.origin;
     let token = null;
+    let currentRole = null;
     let grants = [];
+    let allGrants = [];
     let timerInterval = null;
+
+    // ── JWT ──
+
+    function decodeJwtPayload(jwt) {
+        const payload = jwt.split('.')[1];
+        return JSON.parse(atob(payload));
+    }
 
     // ── Auth ──
 
@@ -511,12 +602,24 @@
             const data = await res.json();
             token = data.token;
 
+            const claims = decodeJwtPayload(token);
+            currentRole = claims.role || 'USER';
+
             document.getElementById('login-panel').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             document.getElementById('session-info').style.display = 'flex';
             document.getElementById('session-user').textContent = username;
 
-            log('authenticated', username);
+            const badge = document.getElementById('role-badge');
+            badge.textContent = currentRole.toLowerCase();
+            badge.className = 'role-badge ' + (currentRole === 'ADMIN' ? 'admin' : 'user');
+
+            if (currentRole === 'ADMIN') {
+                document.getElementById('create-section').style.display = 'block';
+                document.getElementById('admin-section').style.display = 'block';
+            }
+
+            log('authenticated', `${username} [${currentRole.toLowerCase()}]`);
             toast('Authenticated', 'success');
             refreshGrants();
             timerInterval = setInterval(updateTimers, 1000);
@@ -530,21 +633,28 @@
 
     function logout() {
         token = null;
+        currentRole = null;
         grants = [];
+        allGrants = [];
         clearInterval(timerInterval);
         document.getElementById('login-panel').style.display = 'block';
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('session-info').style.display = 'none';
+        document.getElementById('create-section').style.display = 'none';
+        document.getElementById('admin-section').style.display = 'none';
         document.getElementById('log-entries').innerHTML = '';
         document.getElementById('password').value = '';
+        document.getElementById('target-user').value = '';
+        document.getElementById('resource').value = '';
     }
 
     // ── Grants ──
 
     async function createGrant() {
+        const username = document.getElementById('target-user').value.trim();
         const resourceName = document.getElementById('resource').value.trim();
         const durationMinutes = parseInt(document.getElementById('duration').value);
-        if (!resourceName) return;
+        if (!username || !resourceName) return;
 
         try {
             const res = await fetch(`${API}/grants`, {
@@ -553,17 +663,18 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ resourceName, durationMinutes })
+                body: JSON.stringify({ username, resourceName, durationMinutes })
             });
 
             if (res.status === 401) { toast('Session expired', 'error'); logout(); return; }
+            if (res.status === 403) { toast('Admin role required', 'error'); return; }
             if (!res.ok) {
                 const err = await res.json();
                 throw new Error(err.error || 'Failed to create grant');
             }
 
-            log('granted', `${resourceName} for ${durationMinutes}m`);
-            toast('Grant created', 'success');
+            log('provisioned', `${resourceName} → ${username} for ${durationMinutes}m`);
+            toast('Grant provisioned', 'success');
             document.getElementById('resource').value = '';
             refreshGrants();
         } catch (e) {
@@ -571,7 +682,7 @@
         }
     }
 
-    async function revokeGrant(id, resourceName) {
+    async function revokeGrant(id, resourceName, isAdminAction) {
         try {
             const res = await fetch(`${API}/grants/${id}`, {
                 method: 'DELETE',
@@ -581,7 +692,8 @@
             if (res.status === 401) { toast('Session expired', 'error'); logout(); return; }
             if (!res.ok) throw new Error('Failed to revoke');
 
-            log('revoked', resourceName);
+            const label = isAdminAction ? 'admin-revoked' : 'revoked';
+            log(label, resourceName);
             toast('Grant revoked', 'success');
             refreshGrants();
         } catch (e) {
@@ -590,6 +702,7 @@
     }
 
     async function refreshGrants() {
+        // Fetch own grants
         try {
             const res = await fetch(`${API}/grants/active`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -599,11 +712,9 @@
             if (!res.ok) throw new Error('Failed to fetch');
 
             const data = await res.json();
-            // Handle both envelope { grants: [...] } and bare array [...]
             const prev = grants.length;
             grants = Array.isArray(data) ? data : (data.grants || []);
 
-            // Detect expiration
             if (prev > 0 && grants.length < prev) {
                 const diff = prev - grants.length;
                 log('expired', `${diff} grant${diff > 1 ? 's' : ''} timed out`);
@@ -612,6 +723,23 @@
             renderGrants();
         } catch (e) {
             console.error(e);
+        }
+
+        // Fetch all grants if admin
+        if (currentRole === 'ADMIN') {
+            try {
+                const res = await fetch(`${API}/grants/active/all`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    allGrants = Array.isArray(data) ? data : (data.grants || []);
+                    renderAdminGrants();
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 
@@ -623,16 +751,36 @@
             return;
         }
 
-        container.innerHTML = grants.map(g => {
-            const remaining = new Date(g.expiresAt).getTime() - Date.now();
-            const totalMs = new Date(g.expiresAt).getTime() - new Date(g.issuedAt).getTime();
-            const pct = Math.max(0, remaining / totalMs);
-            const timerClass = pct < 0.15 ? 'critical' : pct < 0.35 ? 'warning' : '';
+        container.innerHTML = grants.map(g => renderGrantCard(g, false)).join('');
+    }
 
-            return `
-      <div class="grant-card" data-id="${g.id}" data-expires="${g.expiresAt}">
+    function renderAdminGrants() {
+        const container = document.getElementById('admin-grants-container');
+
+        if (allGrants.length === 0) {
+            container.innerHTML = '<div class="grants-empty">No active grants</div>';
+            return;
+        }
+
+        container.innerHTML = allGrants.map(g => renderGrantCard(g, true)).join('');
+    }
+
+    function renderGrantCard(g, isAdmin) {
+        const remaining = new Date(g.expiresAt).getTime() - Date.now();
+        const totalMs = new Date(g.expiresAt).getTime() - new Date(g.issuedAt).getTime();
+        const pct = Math.max(0, remaining / totalMs);
+        const timerClass = pct < 0.15 ? 'critical' : pct < 0.35 ? 'warning' : '';
+        const cardClass = isAdmin ? 'grant-card admin-card' : 'grant-card';
+        const ownerHtml = isAdmin && g.username
+            ? `<span class="grant-owner">${esc(g.username)}</span>`
+            : '';
+
+        return `
+      <div class="${cardClass}" data-id="${g.id}" data-expires="${g.expiresAt}">
         <div class="grant-header">
-          <span class="grant-resource">${esc(g.resourceName)}</span>
+          <span>
+            <span class="grant-resource">${esc(g.resourceName)}</span>${ownerHtml}
+          </span>
           <span class="grant-status ${pct < 0.15 ? 'status-expiring' : 'status-active'}">
             ${pct < 0.15 ? 'expiring' : 'active'}
           </span>
@@ -653,13 +801,12 @@
           </span>
           <div>
             <span class="grant-id">${g.id.slice(0, 8)}…</span>
-            <button class="btn-revoke" onclick="revokeGrant('${g.id}', '${esc(g.resourceName)}')">
+            <button class="btn-revoke" onclick="revokeGrant('${g.id}', '${esc(g.resourceName)}', ${isAdmin})">
               revoke
             </button>
           </div>
         </div>
       </div>`;
-        }).join('');
     }
 
     function updateTimers() {
@@ -674,8 +821,9 @@
             }
 
             const card = el.closest('.grant-card');
+            const issuedEl = card.querySelector('.meta-value');
             const totalMs = new Date(card.dataset.expires).getTime() -
-                new Date(card.querySelector('.meta-value').textContent).getTime() || 1;
+                new Date(issuedEl.textContent).getTime() || 1;
             const pct = remaining / totalMs;
 
             el.textContent = fmtCountdown(remaining);

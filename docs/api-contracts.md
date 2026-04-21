@@ -171,6 +171,51 @@ An empty `"grants": []` array is a valid response when the user has no active gr
 
 ---
 
+## GET /grants/active/all
+
+List all active grants for all users. Active means not revoked and not expired. The user is derived from the JWT — no userId parameter is accepted.
+
+**Authorization:** Bearer token required
+
+**Request body:** N/A
+
+**Success (200):**
+
+```json
+{
+  "grants": [
+    {
+      "id": "a3f1c9b2-7e4d-4c8a-b6d1-2f9e8a7c3b5d",
+      "userId": "e7b2d1f4-3a6c-4e9b-8c5d-1f2a3b4c5d6e",
+      "resourceName": "production-db",
+      "issuedAt": "2026-03-15T14:30:00Z",
+      "expiresAt": "2026-03-15T16:30:00Z",
+      "revoked": false,
+      "active": true
+    },
+    {
+      "id": "c3f1c9b2-3e4d-4c8a-26d1-5f9e8a7c3b5d",
+      "userId": "37b2d1f4-3ffc-dg9b-4t5d-12343b4c5d6e",
+      "resourceName": "user-prefs",
+      "issuedAt": "2026-03-15T14:30:00Z",
+      "expiresAt": "2026-03-15T16:30:00Z",
+      "revoked": false,
+      "active": true
+    }
+  ]
+}
+```
+
+An empty `"grants": []` array is a valid response when the user has no active grants. This is not an error.
+
+**Errors:**
+
+| Status | Condition |
+|--------|-----------|
+| 401 | Missing or invalid token |
+
+---
+
 ## DELETE /grants/{id}
 
 Revoke a grant. This is a soft delete — the grant record is preserved with `revoked` set to true for audit purposes. Users can only revoke their own grants unless they have an admin role.

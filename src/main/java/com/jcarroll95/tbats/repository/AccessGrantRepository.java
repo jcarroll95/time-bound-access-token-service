@@ -15,4 +15,7 @@ public interface AccessGrantRepository extends JpaRepository<AccessGrant, UUID>{
     List<AccessGrant> findByExpiresAtBeforeAndRevokedFalse(OffsetDateTime now);
 
     List<AccessGrant> findByUserIdAndRevokedFalseAndExpiresAtAfter(UUID userId, OffsetDateTime now);
+
+    List<AccessGrant> findByRevokedFalseAndExpiresAtAfter(OffsetDateTime now);
+
 }

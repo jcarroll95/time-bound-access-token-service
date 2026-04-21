@@ -1,5 +1,6 @@
 package com.jcarroll95.tbats.service;
 
+import com.jcarroll95.tbats.dto.grant.AdminGrantResponse;
 import com.jcarroll95.tbats.model.User;
 import com.jcarroll95.tbats.repository.AccessGrantRepository;
 import com.jcarroll95.tbats.repository.UserRepository;
@@ -11,7 +12,9 @@ import com.jcarroll95.tbats.model.AccessGrant;
 import com.jcarroll95.tbats.dto.grant.CreateGrantRequest;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.jcarroll95.tbats.model.Role;
 @Service
@@ -26,10 +29,21 @@ public class GrantService {
         this.userRepository = userRepository;
     }
 
-    public GrantResponse createGrant(String username, CreateGrantRequest request) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(username));
+    public GrantResponse createGrant(String callerUsername, CreateGrantRequest request) {
+        User caller = userRepository.findByUsername(callerUsername)
+                .orElseThrow(() -> new EntityNotFoundException(callerUsername));
 
-        AccessGrant grant = new AccessGrant(user.getId(), request.resourceName(), request.durationMinutes());
+        if (caller.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Admin role required to create grants");
+        }
+
+        User target = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new EntityNotFoundException(request.username()));
+
+        int duration = request.durationMinutes();
+        if (duration < 1 || duration > 360) throw new IllegalArgumentException("Request duration unacceptable");
+
+        AccessGrant grant = new AccessGrant(target.getId(), request.resourceName(), duration);
         AccessGrant savedGrant = grantRepository.save(grant);
         return toResponse(savedGrant);
     }
@@ -55,6 +69,16 @@ public class GrantService {
         grantRepository.save(grant);
     }
 
+    public List<AdminGrantResponse> getAllActiveGrants(String username) {
+        List<AccessGrant> grants = grantRepository.findByRevokedFalseAndExpiresAtAfter(OffsetDateTime.now());
+
+        Map<UUID, String> userLookup = userRepository.findAllById(
+                grants.stream().map(AccessGrant::getUserId).distinct().toList()
+        ).stream().collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return grants.stream().map(g -> toAdminResponse(g, userLookup)).toList();
+    }
+
     private GrantResponse toResponse(AccessGrant grant) {
         boolean active = !grant.getRevoked() && grant.getExpiresAt().isAfter(OffsetDateTime.now());
         return new GrantResponse(
@@ -75,4 +99,18 @@ public class GrantService {
             throw new AccessDeniedException("User does not have access to this grant");
         }
     }
+
+    private AdminGrantResponse toAdminResponse(AccessGrant grant, Map<UUID, String> userLookup) {
+        return new AdminGrantResponse(
+                grant.getId(),
+                grant.getUserId(),
+                userLookup.getOrDefault(grant.getUserId(), "unknown"),
+                grant.getResourceName(),
+                grant.getIssuedAt(),
+                grant.getExpiresAt(),
+                grant.getRevoked(),
+                !grant.getRevoked() && grant.getExpiresAt().isAfter(OffsetDateTime.now())
+        );
+    }
+
 }

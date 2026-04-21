@@ -10,6 +10,8 @@ Use the test user credentials to log in and create timed access grants.
 - **testuser / user123** (USER role)
 - **admin / admin123** (ADMIN role)
 
+![Demo access grant management](./docs/tbats-demo.gif)
+
 ## Overview
 
 A small but realistic backend service that issues temporary access grants and automatically expires them. This is a  

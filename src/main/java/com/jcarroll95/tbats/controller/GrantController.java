@@ -1,5 +1,6 @@
 package com.jcarroll95.tbats.controller;
 
+import com.jcarroll95.tbats.dto.grant.AdminGrantResponse;
 import com.jcarroll95.tbats.dto.grant.CreateGrantRequest;
 import com.jcarroll95.tbats.dto.grant.GrantListResponse;
 import com.jcarroll95.tbats.dto.grant.GrantResponse;
@@ -51,6 +52,11 @@ public class GrantController {
             Authentication auth) {
         grantService.revokeGrant(id, auth.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/active/all")
+    public ResponseEntity<List<AdminGrantResponse>> getAllActive(Authentication auth) {
+        return ResponseEntity.ok(grantService.getAllActiveGrants(auth.getName()));
     }
 
 }

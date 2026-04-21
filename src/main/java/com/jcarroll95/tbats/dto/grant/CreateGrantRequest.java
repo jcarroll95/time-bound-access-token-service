@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Size;
 
 public record CreateGrantRequest(
         @NotBlank(message = "must not be blank")
+        String username,
+
+        @NotBlank(message = "must not be blank")
         @Size(max = 255, message = "must be at most 255 characters")
         String resourceName,
 
