@@ -82,10 +82,14 @@ User and AccessGrant are the primary entities. See [docs/entity-relationships.md
 
 ## Operational Concerns
 
-- HTTPS with TLS termination at the ALB, HTTP-to-HTTPS redirect via 301
+- HTTPS with TLS termination at the ALB, HTTP-to-HTTPS redirect via 301; ACM-managed certificate with auto-renewal
+- ALB target group health checks tuned for Spring Boot startup time (`/health`, 10s interval, 2/2 thresholds, 120s grace period). This prevents the slow-booting Spring app from being killed before accumulating enough health checks.
+- Rolling deployments with `minimumHealthyPercent: 100`, `maximumPercent: 200`. This way the new task starts and passes ALB health checks before the old task drains, so requests are never interrupted
 - Rate limiting on authentication and grant creation endpoints (Bucket4j token-bucket)
 - Security group chaining: ECS tasks only accept traffic through the ALB, not directly from the internet
-- CI pipeline runs tests on every push; CD pipeline builds, pushes to ECR, and deploys to ECS on merge to main
+- GitHub Actions authenticates to AWS via OIDC federation with short-lived STS credentials per workflow run, no long-lived access keys stored as repo secrets, full CloudTrail audit trail
+- CD pipeline gates on `wait-for-service-stability: true` README.md CD badge going green means ECS confirmed a healthy rollout, not just that the image was pushed
+- CI runs tests on every PR to `main`; CD runs the full test suite, builds, pushes to ECR, and deploys only on merge
 - Environment configuration via `application.yml` profiles (`local`, `demo`)
 - Structured logging
 - Error handling with consistent JSON error responses
@@ -160,10 +164,12 @@ and not to the Postgres container.
 
 The live demo runs on AWS ECS Fargate behind an Application Load Balancer at `api.loadbearing.dev`. The CD pipeline handles deployment automatically on merge to `main`:
 
-1. Tests run against a Testcontainers PostgreSQL instance
-2. Docker image is built and pushed to ECR (tagged with commit SHA and `latest`)
-3. ECS task definition is updated with the new image
-4. ECS service performs a rolling deployment
+1. Tests run against a Testcontainers PostgreSQL instance where full schema and lifecycle are exercised before any image is built.
+2. AWS credentials are obtained via [GitHub OIDC federation](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services). No long-lived AWS access keys live in repo secrets; each workflow run gets short-lived STS credentials scoped to a single deploy role.
+3. Docker image is built (`--platform linux/amd64`) and pushed to ECR, tagged with both the commit SHA and `latest`.
+4. Task definition is rendered using [`amazon-ecs-render-task-definition`](https://github.com/aws-actions/amazon-ecs-render-task-definition) which substitutes the new image tag into the committed `task-definition.json`, so everything else (env vars, secrets, IAM roles, CPU/memory) stays in version control alongside the code.
+5. Service is updated using [`amazon-ecs-deploy-task-definition`](https://github.com/aws-actions/amazon-ecs-deploy-task-definition) with `wait-for-service-stability: true`. The workflow only succeeds after ECS confirms the new task is healthy and registered with the ALB target group.
+6. ECS performs a rolling deployment that overlaps the new task with the old one. The old task only drains once the new one is passing ALB health checks.
 
 Required environment variables at deploy time:
 
@@ -178,7 +184,7 @@ Required environment variables at deploy time:
 Secrets are stored in AWS Secrets Manager and injected into the ECS task definition. Non-secret environment variables are set directly on the task definition.
 
 > Note: `SPRING_DATASOURCE_USER` is not a Spring Boot datasource property.
-> Use `POSTGRES_USER` (as this project does) or `SPRING_DATASOURCE_USERNAME`.
+> Use `POSTGRES_USER` or `SPRING_DATASOURCE_USERNAME`.
 
 ### Example requests
 
@@ -233,6 +239,17 @@ Spring Boot 4.0.5 is the latest patch release at time of writing and includes
 current security patches for Spring Framework, Spring Security, Jackson, and
 Tomcat. IntelliJ's Package Checker reports no known CVEs against the resolved
 dependency tree.
+
+## Known Limitations
+
+These are deliberate scope decisions for an MVP-grade portfolio service. Each is something a production deployment of this system would tighten:
+
+- **Single-AZ task placement.** The service runs tasks in one subnet (`us-east-1e`) even though the ALB spans two AZs. Acceptable at `desiredCount: 1`; multi-AZ would mean adding the second subnet to the service's network configuration.
+- **Tasks share a security group with RDS.** Currently the default VPC security group. Should be a dedicated SG whose only inbound rule is from the ALB SG on port 8080.
+- **Deployment circuit breaker disabled.** `deploymentCircuitBreaker.enable: false`. With it enabled and `rollback: true`, failed deployments would auto-revert to the prior task definition.
+- **No autoscaling.** `desiredCount` is fixed at 1. A real workload would use target-tracking on CPU or request count.
+- **Tasks have public IPs.** Required for ECR pull and outbound calls from public subnets. A private-subnet deployment with a NAT gateway, or VPC endpoints for ECR, Secrets Manager, CloudWatch, is a more locked-down posture.
+- **No WAF in front of the ALB.** Adding AWS WAF with the AWS-managed rule sets would be the next layer of defense.
 
 ## Bridge to PAM
 
