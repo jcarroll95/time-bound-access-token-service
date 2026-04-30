@@ -3,6 +3,11 @@ name: CD
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
 
 permissions:
   id-token: write
