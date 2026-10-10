@@ -162,7 +162,7 @@ and not to the Postgres container.
 
 ### Deployment
 
-The live demo runs on AWS ECS Fargate behind an Application Load Balancer at `api.loadbearing.dev`. The CD pipeline handles deployment automatically on merge to `main`:
+The live demo runs on a home k3s cluster behind Cloudflare at `api.loadbearing.dev` (moved from AWS ECS Fargate on 2026-10-10; deployment config lives in the `webapps` repo). `docker.yml` publishes the image to GHCR on every push to `main`:
 
 1. Tests run against a Testcontainers PostgreSQL instance where full schema and lifecycle are exercised before any image is built.
 2. AWS credentials are obtained via [GitHub OIDC federation](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services). No long-lived AWS access keys live in repo secrets; each workflow run gets short-lived STS credentials scoped to a single deploy role.
